@@ -1,4 +1,4 @@
-# 🪙 MoMo Payment Gateway Demo (Go + Clean Architecture)
+# 🪙 MoMo Payment Gateway Demo (Go)
 
 ### Overview
 A clean-layer demo project showing how to integrate **MoMo Sandbox (v2.0)** with Go backend and minimal HTML UI.  
