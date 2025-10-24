@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Result MoMo Payment</title>
+    <style>
+        body { font-family: ui-sans-serif, system-ui, -apple-system; max-width: 720px; margin: 40px auto; }
+        h2 { margin-bottom: 12px; }
+        table { border-collapse: collapse; width: 100%; }
+        td, th { border: 1px solid #eee; padding: 8px; }
+        th { background: #fafafa; text-align: left; }
+        .ok { color: green; font-weight: 600; }
+        .fail { color: red; font-weight: 600; }
+        button { margin-top: 16px; padding: 8px 14px; border: none; border-radius: 6px; background: #8a2be2; color: #fff; cursor: pointer; }
+    </style>
+</head>
+<body>
+<h2>Result Payment</h2>
+<div id="result"></div>
+
+<button onclick="queryStatus()">Check order status</button>
+<pre id="status"></pre>
+
+<script>
+    const params = Object.fromEntries(new URLSearchParams(location.search));
+
+    // Render table of params
+    let html = "<table>";
+    for (const [k,v] of Object.entries(params)) {
+        html += `<tr><th>${k}</th><td>${v}</td></tr>`;
+    }
+    html += "</table>";
+    document.getElementById("result").innerHTML = html;
+
+    async function queryStatus() {
+        if (!params.orderId || !params.requestId) {
+            alert("missing orderId/requestId params");
+            return;
+        }
+        const res = await fetch(`/api/v1/payment/momo/check-status?orderId=${params.orderId}&requestId=${params.requestId}`);
+        const data = await res.json();
+
+        if (data.resultCode === 0) {
+            await updateOrder("PAID");
+        } else {
+            await updateOrder("FAILED");
+        }
+    }
+
+    async function updateOrder(status) {
+        const body = { orderId: params.orderId, status };
+        const res = await fetch("/api/v1/payment/momo/update-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        const msg = await res.json();
+        console.log("Update order:", msg);
+        const el = document.createElement("p");
+        el.textContent = `✅ Order ${params.orderId} updated to ${status}`;
+        document.body.appendChild(el);
+    }
+
+    // Auto check order status when page loads
+    window.addEventListener("load", () => {
+        setTimeout(queryStatus, 1000);
+    });
+</script>
+
+</body>
+</html>

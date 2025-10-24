@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MoMo Payment Demo (Clean Layers)</title>
+    <style>
+        body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto;max-width:720px;margin:40px auto;padding:0 16px}
+        .card{border:1px solid #eee;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+        input,button{font-size:16px;padding:10px 12px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box}
+        button{background:#8a2be2;color:#fff;border:none;cursor:pointer;margin-top:12px}
+        button:hover{opacity:.92}
+        label{display:block;margin:10px 0 6px;font-weight:600}
+        pre{background:#f6f6f6;padding:12px;border-radius:8px;overflow:auto}
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>MoMo Sandbox Demo</h1>
+    <label>Amount (₫)</label>
+    <input id="amount" type="number" value="1000000" min="1000" step="100">
+    <label>Description</label>
+    <input id="desc" type="text" value="Demo order payment">
+    <button onclick="pay()">Pay with MoMo</button>
+    <p id="msg"></p>
+    <pre id="out"></pre>
+</div>
+
+<script>
+    async function pay(){
+        const payload = { amount: Number(document.getElementById('amount').value||0), description: document.getElementById('desc').value }
+        const r = await fetch('/api/v1/payment/momo/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+        const j = await r.json();
+        document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+        if(j.payUrl){
+            document.getElementById('msg').textContent = 'Redirecting to MoMo...';
+            location.href = j.payUrl;
+        }
+    }
+</script>
+</body>
+</html>
