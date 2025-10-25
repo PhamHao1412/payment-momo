@@ -58,8 +58,26 @@ To test IPN:
 curl -X POST http://localhost:8083/api/v1/payment/momo/ipn   -H "Content-Type: application/json"   -d '{ ... valid IPN payload with correct signature ... }'
 ```
 Alternatively, expose your local server using [ngrok](https://ngrok.com) or Cloudflare Tunnel.
-
+“
 ---
+## 🖼 Result (Payment UI)
+
+After calling `POST /api/v1/payment/momo/create`, the backend signs the request,
+calls MoMo's `create` API, and returns `payUrl`.
+
+When you redirect the user to that `payUrl`, MoMo shows the checkout page with
+QR code for payment, like this:
+
+![MoMo Checkout QR](docs/image/momo_checkout.png)
+
+- Left panel: order info (merchant, orderId, description, amount).
+- Right panel: QR that the user scans in MoMo app.
+- Countdown: how long the payment link is still valid.
+
+From here:
+1. The user scans and pays.
+2. MoMo will call your IPN endpoint (`/api/v1/payment/momo/ipn`).
+3. User gets redirected back to `/momo/return?...`.
 
 ### Notes
 - The UI (`return.html`) automatically queries `/check-status` and updates order accordingly.  
